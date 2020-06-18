@@ -1,0 +1,91 @@
+﻿
+FASTQ FILE PROCESSING PIPELINE FOR DEEP MUTATIONAL SCANNING 
+
+
+AIM: count the occurence of known barcode or tag sequence in a fastq file. This pipeline is meant to be used in case of population studies where we were are interested in knowing the distribution of the population. 
+
+
+CONTENT: 
+
+1. barcodes.txt
+
+List of barcodes used in the experiment - contains barcode name and sequence.
+
+
+2. mismatch.sh
+
+To be permissive we can allow more or less barcode mismatches. This script helps determine how many mismatches we can allow without having barcodes aligning with each other.  
+
+parameters to be set:
+
+	- WORDSIZE = 25
+
+	look for 25 consecutive bases [allow 15 mismatches over 40 bases for example]
+
+
+3. bc_count.sh 
+
+Each barcode sequence is aligned to each read of the FASTQ file using a megablast. The script will output a text file containing the occurrence of each barcode. 
+
+parameters to be set:
+
+	- FASTQ_HEADER = depends on the sequencer used [@TWEETY for MiSEQ - GTF, Lausanne]
+
+	- QFILTER = 1 if we take only the passed filter reads or 0 if we use all the reads
+
+	- export TRIMPOS = 40 and export TRIMSIZE = 100
+
+	get rid of all bases until position 40 and keep the 100 next ones 
+
+	- WORDSIZE = 25	
+	 
+	look for 25 consecutive bases [allow 15 mismatches over 40 bases for example]
+
+
+4. batch.sh
+
+This script loops the previous bc_count.sh script through all fastq files saved in folder BC.
+
+
+
+HOW TO USE THE PIPELINE
+
+
+STEP 1: 
+
+
+Open your terminal
+
+
+IMPORTANT: set directory to BC folder to use the scripts. For example:
+
+	cd marionpatxot/Desktop/BC/
+
+
+STEP 2: 
+
+
+Use script mismatch.sh to determine the WORDSIZE.
+
+	./mismatch.sh INPUT_BC_COLLECTION 
+
+If the number of alignments found is equal to the number of barcodes used then the barcodes do not auto-align and WORDSIZE can be used to count the occurence of each barcode. 
+
+NOTE: You may also choose not to be permissive at all and allow zero mismatches.
+
+
+STEP 3:
+
+
+Perform the megablast using the script batch.sh.
+
+	./batch.sh INPUT_BC_COLLECTION FASTQ_HEADER QFILTER TRIMPOS TRIMSIZE WORDSIZE 
+
+
+
+
+
+
+
+
+
